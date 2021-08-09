@@ -1,0 +1,16 @@
+\documentclass{bxjsarticle}
+
+\usepackage{luatexja}
+\usepackage{luacode}
+
+\title{環境変数による著者情報秘匿のテスト}
+\author{\directlua{tex.print(os.getenv("AUTHOR_NAME"))}}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{概要}
+ほげほげ
+
+\end{document}
