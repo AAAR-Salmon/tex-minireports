@@ -10,12 +10,6 @@
 \usepackage{amsmath, amssymb}
 \usepackage{mathtools}
 \usepackage{physics}
-% \usepackage{tikz}
-% \usepackage[RPvoltages]{circuitikz}
-% \usepackage{diagbox}
-% \usepackage{karnaugh-map}
-
-% \usetikzlibrary{calc}
 
 \setpagelayout*{margin=20truemm}
 
@@ -49,29 +43,8 @@
 	\section{計算結果}
 	実行時の出力はそれぞれ以下のようになった．
 
-	\begin{Verbatim}[fontsize=\small, xleftmargin=10mm, gobble=2, frame=lines]
-		 2, 1.076710390947, 0.232960390947, 0.904363854595, 0.060613854595
-		 4, 0.907305923146, 0.063555923146, 0.850837767213, 0.007087767213
-		 8, 0.860071570485, 0.016321570485, 0.844326786265, 0.000576786265
-		16, 0.847859818988, 0.004109818988, 0.843789235155, 0.000039235155
-	\end{Verbatim}
-	\begin{Verbatim}[fontsize=\small, xleftmargin=10mm, gobble=2, frame=lines]
-		0,  1, 1.593750000000, 0.750000000000
-		0,  2, 1.076710390947, 0.232960390947
-		0,  4, 0.907305923146, 0.063555923146
-		0,  8, 0.860071570485, 0.016321570485
-		0, 16, 0.847859818988, 0.004109818988
-		1,  2, 0.904363854595, 0.060613854595
-		1,  4, 0.850837767213, 0.007087767213
-		1,  8, 0.844326786265, 0.000576786265
-		1, 16, 0.843789235155, 0.000039235155
-		2,  4, 0.847269361387, 0.003519361387
-		2,  8, 0.843892720869, 0.000142720869
-		2, 16, 0.843753398414, 0.000003398414
-		3,  8, 0.843839123400, 0.000089123400
-		3, 16, 0.843751186947, 0.000001186947
-		4, 16, 0.843750842098, 0.000000842098
-	\end{Verbatim}
+	\VerbatimInput[fontsize=\small, xleftmargin=10mm, frame=lines]{trap_simpson_error.csv}
+	\VerbatimInput[fontsize=\small, xleftmargin=10mm, frame=lines]{romberg_error.csv}
 
 	\noindent
 	これを表にまとめると表\ref{tab:trap_simpson}，表\ref{tab:romberg}のようになる．
@@ -140,103 +113,8 @@
 	\appendix
 	\section{使用したプログラム} \label{sec:program}
 	\subsection{台形積分とシンプソン積分}
-	\begin{Verbatim}[fontsize=\small, tabsize=4, frame=lines, numbers=left, xleftmargin=10mm, gobble=2]
-		#include <stdio.h>
-
-		#define I (27.0/32.0) // true value
-		#define LOW 1.0
-		#define HIGH 2.0
-		#define MAXN 16
-
-		// integrand
-		double f(double x) {
-			return 1.0 / (x * x * x) + 2.0 / (x * x * x * x * x);
-		}
-
-		int main(void) {
-			double I1, I2, h, y[MAXN + 1];
-			for (int n = 2; n <= MAXN; n *= 2) {
-				I1 = I2 = 0.0;
-				h = (HIGH - LOW) / n;
-				for (int i = 0; i <= n; i++) {
-					y[i] = f(LOW + h * i);
-				}
-
-				// trapezoidal
-				I1 += (y[0] + y[n]) / 2.0;
-				for (int i = 1; i < n; i++) {
-					I1 += y[i];
-				}
-				I1 *= h;
-
-				// simpson
-				double _sum;
-				I2 += (y[0] + y[n]);
-				_sum = 0.0;
-				for (int i = 1; i < n; i += 2) {
-					_sum += y[i];
-				}
-				I2 += _sum * 4;
-				_sum = 0.0;
-				for (int i = 2; i < n; i += 2) {
-					_sum += y[i];
-				}
-				I2 += _sum * 2;
-				I2 *= h / 3.0;
-
-				printf("%2d, %.12f, %.12f, %.12f, %.12f\n", n, I1, I1 - I, I2, I2 - I);
-			}
-
-			return 0;
-		}
-	\end{Verbatim}
+	\VerbatimInput[fontsize=\small, tabsize=4, frame=lines, numbers=left, xleftmargin=10mm]{trap_simpson.c}
 
 	\subsection{ロンバーグ積分}
-	\begin{Verbatim}[fontsize=\small, tabsize=2, frame=lines, numbers=left, xleftmargin=10mm, gobble=2]
-		#include <stdio.h>
-
-		#define I_TRUE (27.0/32.0) // true value
-		#define LOW 1.0
-		#define HIGH 2.0
-		#define LOG_MAXN 4
-
-		// integrand
-		double f(double x) {
-			return 1.0 / (x * x * x) + 2.0 / (x * x * x * x * x);
-		}
-
-		int main(void) {
-			double I[5][5], y[1 << LOG_MAXN + 1];
-			for (int i = 0; i <= LOG_MAXN; i++) {
-				int n = 1 << i;
-				double _I0 = 0.0;
-				double h = (HIGH - LOW) / n;
-				for (int i = 0; i <= n; i++) {
-					y[i] = f(LOW + h * i);
-				}
-
-				// trapezoidal
-				_I0 += (y[0] + y[n]) / 2.0;
-				for (int i = 1; i < n; i++) {
-					_I0 += y[i];
-				}
-				_I0 *= h;
-
-				I[0][i] = _I0;
-				printf("0, %2d, %.12f, %.12f\n", n, _I0, _I0 - I_TRUE);
-			}
-
-			double pow4 = 4;
-			for (int k = 1; k <= LOG_MAXN; k++) {
-				for (int log_n = k; log_n <= LOG_MAXN; log_n++) {
-					I[k][log_n] = (pow4 * I[k - 1][log_n] - I[k - 1][log_n - 1]) / (pow4 - 1);
-					printf("%1d, %2d, %.12f, %.12f\n", k, 1 << log_n, I[k][log_n], I[k][log_n] - I_TRUE);
-				}
-				pow4 *= 4;
-			}
-
-
-			return 0;
-		}
-	\end{Verbatim}
+	\VerbatimInput[fontsize=\small, tabsize=2, frame=lines, numbers=left, xleftmargin=10mm]{romberg.c}
 \end{document}
