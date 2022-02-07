@@ -1,0 +1,81 @@
+\documentclass[lualatex, a4paper, ja=standard]{bxjsarticle}
+
+\usepackage{luatexja}
+\usepackage{luacode}
+\usepackage{graphicx}
+
+\usepackage{url}
+\usepackage{filecontents}
+
+\usepackage{enumitem}
+\usepackage{amsmath, amssymb}
+
+\setpagelayout*{margin=10truemm}
+
+% タイトルを調節
+\makeatletter
+\def\@maketitle{%
+  \newpage\null
+  \begin{center}%
+    \let\footnote\thanks
+    {\Large \@title \par}%
+    \ifx\bxjs@subtitle\@undefined\else
+      \vskip3\p@?
+      {\normalsize \bxjs@subtitle\par}
+    \fi
+    \vskip 1em
+    {\large
+      \lineskip .5em
+      \begin{tabular}[t]{c}%
+        \@author
+      \end{tabular}\par}%
+    \vskip 1em
+    {\large \@date}%
+  \end{center}%
+  \par\vskip 1.5em
+  \ifvoid\@abstractbox\else\centerline{\box\@abstractbox}\vskip1.5em\fi
+}
+\makeatother
+
+\title{2021年度 インターネットと認証連携 レポート課題2}
+\author{\directlua{tex.print(os.getenv("AUTHOR_NAME"))}}
+\date{提出日：2022年02月07日}
+
+
+\begin{document}
+\maketitle
+
+\section{認証の3要素とは}
+認証の3要素とは，知識情報（Something You Know），所持情報（Something You Have），生体情報（Something You Are）の，
+認証に関する3つの要素を指す言葉である\cite{about_3factors}．
+
+\subsection{知識情報（Something You Know）}
+知識情報は該当する本人のみが知っている知識であり，パスワード，PINコード，秘密の質問などがこれにあたる．
+
+これは認証のシステムが簡単である（一致するかどうかを調べるだけでよい）という長所がある．
+対して，忘れたり，盗まれやすいという短所がある．
+
+\subsection{所持情報（Something You Have）}
+所持情報は該当する本人のみが持っている所有物であり，携帯電話，ICカードなどがこれにあたる．
+
+これは物体の所持を前提とするから盗まれにくいという長所がある．
+対して，物体を携帯していなければならないという短所がある．
+
+\subsection{生体情報（Something You Are）}
+生体情報は該当する本人の生体情報であり，指紋，静脈形状，虹彩などがこれにあたる．
+
+これは盗まれにくいという長所がある．
+対して，認証のシステムが複雑であり誤検知が起こりうる，
+指紋などは複製してなりすまされうるという短所がある．
+
+\section{多要素認証とは}
+多要素認証とは，上記に挙げた要素の複数を組み合わせた認証の方法である．
+長所と短所が異なる認証方法を複数組み合わせることで，相互に短所を補完することができる．
+
+例としては，パスワードによる認証（知識情報）とSMS等を介したワンタイムパスワードによる認証（所持情報）を組み合わせたり，
+ICカード（所持情報）と静脈認証（生体情報）を組み合わせる等が考えられる．
+
+\bibliographystyle{jplain}
+\bibliography{refs}
+
+\end{document}
