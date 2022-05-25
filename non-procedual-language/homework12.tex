@@ -1,0 +1,113 @@
+\documentclass[a4paper, lualatex, ja=standard]{bxjsarticle}
+
+\usepackage{luatexja}
+\usepackage{amsmath, amssymb}
+\usepackage{enumitem}
+
+\setpagelayout*{margin=20truemm}
+
+\title{人工知能 第11回課題}
+\author{氏名:  \\ 学生番号: }
+
+\begin{document}
+\maketitle
+
+\section{資料演習問題3.2.3}
+
+\verb|fun f(a:int, b, c, d, e) =|
+\begin{enumerate}[label=\alph*)]
+\item \verb|if a<b+c then d else e;|
+
+  \verb|a| の型は \verb|int| であるから \verb|b+c| の型は \verb|int| であり，
+  \verb|b|，\verb|c| の型は\verb|int|．
+
+  if式のthen句とelse句は同じ型を返さなければならないから，
+  \verb|d|，\verb|e| の型は \verb|'a|．
+
+\item \verb|if a<b then c else d;|
+
+  \verb|a| の型は \verb|int| であるから \verb|b| の型は \verb|int|．
+
+  if式のthen句とelse句は同じ型を返さなければならないから，
+  \verb|c|，\verb|d| の型は \verb|'a|．
+
+  \verb|e| の型は \verb|'b|．
+
+\item \verb|if a<b then b+c else d+e;|
+
+  \verb|a| の型は \verb|int| であるから \verb|b| の型は \verb|int|．
+
+  \verb|b| の型は \verb|int| であるから \verb|b+c| の型は \verb|int| であり，
+  \verb|c| の型は \verb|int|．
+
+  then句 \verb|b+c| の型は \verb|int| であるから，
+  else句 \verb|d+e| の型は \verb|int| であり，
+  \verb|d|，\verb|e| の型は \verb|int|．
+
+\item \verb|if a<b then b<c else d;|
+
+  \verb|a| の型は \verb|int| であるから \verb|b| の型は \verb|int|．
+
+  \verb|b| の型は \verb|int| であるから \verb|c| の型は \verb|int|．
+
+  \verb|b<c| の型は \verb|bool| であるから \verb|d| の型は \verb|bool|．
+
+  \verb|e| の型は \verb|'a|． 
+
+\item \verb|if b<c then a else c+d;|
+
+  \verb|a| の型は \verb|int| であるから \verb|c+d| の型は \verb|int| であり，
+  \verb|c|，\verb|d| の型は \verb|int|．
+
+  \verb|c| の型は \verb|int| であるから \verb|b| の型は \verb|int|．
+
+  \verb|e| の型は \verb|'a|．
+
+\item \verb|if b<c then d else e;|
+
+  \verb|b<c| が含まれるから \verb|b|，\verb|c| の型は \verb|int|．
+
+  \verb|d|，\verb|e| の型は等しく \verb|'a|．
+
+\item \verb|if b<c then d+e else d*e;|
+
+  \verb|b<c| が含まれるから \verb|b|，\verb|c| の型は \verb|int|．
+
+  \verb|d<e| が含まれるから \verb|d|，\verb|e| の型は \verb|int|．
+\end{enumerate}
+
+\section{型推論に関する問題集 問3.3}
+
+\begin{enumerate}[label=\arabic*., start=2]
+\item \verb|fn x => twice id x|
+
+  \verb|x| の型を \verb|'a| と仮定する．
+  このとき，\verb|id| の型を \verb|'b -> 'b| とすると
+  \verb|twice id| の型は\verb|'b -> 'b|．
+
+  \verb|twice id x = (twice id) x| より，全体の型は \verb|'a -> 'a|．
+
+\item \verb|fun thrice f x = f (f (f x))|
+
+  \verb|f| は繰り返し適用できるからその型は \verb|'a -> 'a|．
+
+  \verb|f x| が含まれるから \verb|x| の型は \verb|'a|．
+
+  したがって，全体の型は \verb|('a -> 'a) -> 'a -> 'a|
+\end{enumerate}
+
+\section{型推論に関する問題集 問3.5}
+\begin{enumerate}[label=\arabic*, start=3]
+\item \verb|fun S x y z = (x z) (y z)|
+
+  \verb|z| の型を \verb|'a| と仮定する．
+
+  \verb|z| を \verb|y| に適用しているから，\verb|y| の型は \verb|'a -> 'b|．
+
+  \verb|z| を \verb|x| に適用し，その関数に \verb|(y z)| が適用されているから，
+  \verb|x| の型は \verb|'a -> 'b -> 'c|．
+
+  したがって，\verb|S| の型は \verb|('a -> 'b -> 'c) -> ('a -> 'b) -> 'a -> 'c|．
+\end{enumerate}
+
+\end{document}
