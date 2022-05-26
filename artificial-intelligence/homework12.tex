@@ -1,0 +1,131 @@
+\documentclass[a4paper, lualatex, ja=standard]{bxjsarticle}
+
+\usepackage{luatexja}
+\usepackage{amsmath, amssymb}
+\usepackage{physics}
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+
+\newtcolorbox{dfntcb}{colframe=blue!50!black, colback=white}
+
+\setpagelayout*{margin=20truemm}
+
+\title{人工知能 第12回課題}
+\author{氏名:  \\ 学生番号: }
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+\begin{document}
+\maketitle
+
+隠れマルコフモデル（HMM）$\mathcal{M}$ は3つのパラメータ $(A,B,\pi)$ を持ち，
+これを $\mathcal{M}=(A,B,\pi)$ と表記することとする．
+ここで，$A$ は状態遷移確率分布，$B$ は観測シンボル分布，
+$\pi$ は初期状態確率分布を表す．
+また，モデル $\mathcal{M}$ は最大で $N$ 個の内部状態を持つとする．
+
+HMMでは主に次の3つの問題を扱う．
+
+\begin{enumerate}
+\item
+  出力シンボル系列 $O$ とモデル $\mathcal{M}$ から，
+  $O$ を観測する尤度 $P(O|\mathcal{M})$ を求める
+
+\item
+  学習用シンボル $O$ を与えて尤度を最大にするモデルパラメータ
+  $\mathcal{M}=(A,B,\pi)$ を求める
+
+\item
+  モデル $\mathcal{M}$ から出力シンボル系列 $O$ の出力を観測するとき，
+  最も可能性が高い状態（遷移）系列 $S=[s_{1},\dots,s_{T}]$ を推定し，
+  その系列の尤度を求める
+\end{enumerate}
+
+\section{ある出力シンボル系列 $O$ を観測する尤度を求める}
+
+出力シンボル系列 $O$ の前側，または後ろ側から動的計画法を用いて計算する．
+
+\subsection{Forward Procedure}
+
+Forward変数 $\alpha_{t}(s)$ を次のように定義する．
+\begin{dfntcb}
+$\alpha_{t}(s)$: 時刻 $t$ までに出力系列 $[o_{1},\dots,o_{t}]$ が観測され，
+時刻 $t$ での状態が $s$ である確率（$0 \leq t \leq T$）
+\end{dfntcb}
+
+このとき，
+\begin{align*}
+\alpha_{0}(s) &= \pi_{s} \\
+\alpha_{t}(s') &= \sum_{s}\alpha_{t-1}(s)a_{ss'}b_{ss'}(o_{t})
+\end{align*}
+として計算することで，
+尤度 $\sum_{s}\alpha_{T}(s)$ を
+時間計算量 $\mathcal{O}(N^{2} T)$ で計算することができる．
+
+\subsection{Backward Procedure}
+
+Backward変数 $\beta_{t}(s)$ を次のように定義する．
+\begin{dfntcb}
+$\beta_{t}(s)$: 時刻 $t$ よりあとに出力系列 $[o_{t+1},\dots,o_{T}]$ が観測され，
+時刻 $t$ での状態が $s$ である確率（$0 \leq t \leq T$）
+\end{dfntcb}
+
+このとき，
+\begin{align*}
+\beta_{T}(s) &= 1 \\
+\beta_{t}(s') &= \sum_{s}\beta_{t+1}(s)a_{s's}b_{s's}(o_{t})
+\end{align*}
+として計算することで，
+尤度 $\sum_{s}\pi_{s}\beta_{0}(s)$ を
+時間計算量 $\mathcal{O}(N^{2} T)$ で計算することができる．
+
+\section{Baum-Welch法: 尤度最大のモデルパラメータを求める}
+
+2つの変数 $\xi_{t}(s,s'), \gamma_{t}(s)$ を導入する．
+\begin{dfntcb}
+$\xi_{t}(s,s')$: 観測系列が $O=[o_{1},\dots,o_{T}]$ であったとき，
+時刻 $t$ に状態 $s$ から $s'$ へ遷移する確率
+
+$\gamma_{t}(s)$: 時刻 $t$ のときの状態が $s$ である確率
+\end{dfntcb}
+
+このとき，
+\begin{align*}
+\xi_{t}(s,s') &= P(s_{t-1}=s,s_{t}=s'|O,\mathcal{M}) \\
+&= \frac{P(s_{t-1}=s,s_{t}=s',O|\mathcal{M})}{P(O|\mathcal{M})} \\
+&= \frac{\alpha_{t-1}(s)a_{ss'}b_{ss'}o_{t}\beta_{t}(s')}
+        {\sum_{s,s'}\alpha_{t-1}(s)a_{ss'}b_{ss'}o_{t}\beta_{t}(s')} \\
+\gamma_{t}(s) &= \sum_{s'}\xi_{t}(s,s')
+\end{align*}
+となる．
+
+これらを利用し，適当なモデル $\mathcal{M}=(A,B,\pi)$ を仮定することで，
+次のようにしてより出力系列の尤度の高くなるモデル
+$\mathcal{M'}=(A',B',\pi')$ を推定することができる．
+\begin{align*}
+\pi'_{s} &=\gamma_{0}(s)=\frac{\alpha_{0}(s)\beta_{0}(s')}{P(O|\mathcal{M})} \\
+a'_{ss'} &=\frac{\sum_{t}\xi_{t}(s,s')}{\sum_{t}\gamma_{t-1}(s)} \\
+b'_{ss'}(o_{t}) &=\frac{\sum_{t|o_t}\xi_{t}(s,s')}{\sum_{t}\xi_{t}(s,s')}
+\end{align*}
+
+\section{Viterbiアルゴリズム: バックトラックによる最尤系列の探索}
+
+2つの変数 $\delta_{t}(s), \psi_{t}(s)$ を導入する．
+\begin{dfntcb}
+$\delta_{t}(s)$: 時刻 $t$ で状態 $s$ にあるときに状態系列
+$[s_{0},\dots,s_{t}(=s)]$ を取る確率の最大値
+
+$\psi_{t}(s)$: 時刻 $t$ で状態 $s$ に遷移したときの直前の状態のうち
+その遷移が状態系列の発生確率の最大値を取る状態
+\end{dfntcb}
+
+このとき，
+\begin{align*}
+\delta_{0}(s) &=\pi_{s} \\
+\delta_{t}(s') &= \max_{s}\delta_{t-1}(s)a_{ss'}b_{ss'}(o_{t}) \\
+\psi_{t}(s') &=\argmax_{s}\delta_{t-1}(s)a_{ss'}b_{ss'}(o_{t})
+\end{align*}
+とすると，$p^{*}=\max_{s}\delta_{T}(s)$ で最適な状態系列の生成確率を得る．
+また，$s^{*}_{T}=\argmax_{s}\delta_{T}(s), s^{*}_{t}=\psi_{t+1}(s^{*}_{t+1})$ とすると，
+$[s^{*}_{0},\dots,s^{*}_{T}]$ で最適な状態系列を得る．
+\end{document}
