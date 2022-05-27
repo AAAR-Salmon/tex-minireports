@@ -1,0 +1,162 @@
+\documentclass[a4paper, lualatex, ja=standard]{bxjsarticle}
+
+\usepackage{luatexja}
+\usepackage{amsmath, amssymb}
+\usepackage{enumitem}
+
+\setpagelayout*{margin=20truemm}
+
+\title{非手続き型言語 第13回課題}
+\author{氏名:  \\ 学生番号: }
+
+\begin{document}
+\maketitle
+
+\section{型推論に関する問題集 問3.5}
+
+\begin{enumerate}
+\item[3.] \verb|fun A x y z = z y x|
+
+  \verb|x| の型を \verb|'a| と仮定する．
+  \verb|y| を \verb|z| に適用し，その関数に \verb|x| が適用されているから，
+  \verb|y| の型は \verb|'b|，\verb|z| の型は \verb|'b -> 'a -> 'c|．
+
+  したがって，全体の型は \verb|'a -> 'b -> ('b -> 'a -> 'c) -> c|．
+
+\item[4.] \verb|fun B f g = f g g|
+
+\verb|g| の型を \verb|'a| と仮定する．
+\verb|g| を \verb|f| に適用し，その関数に \verb|g| が適用されているから，
+\verb|f| の型は \verb|'a -> 'a -> 'b|．
+
+したがって，全体の型は \verb|('a -> 'a -> 'b) -> 'a -> 'b|．
+\end{enumerate}
+
+\section{型推論に関する問題集 問3.7}
+
+\begin{enumerate}
+\item[2.] \verb|fun f x y z = x (y z) : int|
+
+  \verb|x (y z) : int| は \verb|(x (y z)) : int| に等しい．
+
+  ここで，\verb|z| の型を \verb|'b| と仮定する．
+  \verb|z| を \verb|y| に適用しているから，\verb|y| の型は \verb|'b -> 'a|．
+  \verb|(y z)| を \verb|x| に適用しているから，\verb|x| の型は \verb|'a -> int|．
+
+  したがって，全体の型は \verb|('a -> int) -> ('b -> 'a) -> 'b -> int|．
+
+\item[3.] \verb|fun f x y z = (x y z) : int|
+
+  \verb|z| の型を \verb|'b| と仮定する．
+  \verb|y| を \verb|x| に適用し，その関数に \verb|z| が適用されているから，
+  \verb|y| の型は \verb|'a|，\verb|x| の型は \verb|'a -> 'b -> int|．
+
+  したがって，全体の型は \verb|('a -> 'b -> int) -> 'a -> 'b -> int|．
+
+\item[4.] \verb|fun f x y z = x y (z : int)|
+
+  明らかに \verb|z| の型は \verb|int| である．
+
+  \verb|y| を \verb|x| に適用し，その関数に \verb|z| が適用されているから，
+  \verb|y| の型は \verb|'a|，\verb|x| の型は \verb|'a -> int -> 'b|．
+
+  したがって，全体の型は \verb|('a -> int -> 'b) -> 'a -> int -> 'b|．
+
+\item[5.] \verb|fun f x y z = x (y z : int)|
+
+  \verb|z| の型を \verb|'b| と仮定する．
+  \verb|z| を \verb|y| に適用しているから，\verb|y| の型は \verb|'b -> int|．
+  \verb|y z| を \verb|x| に適用しているから，\verb|x| の型は \verb|int -> 'a|．
+
+  したがって，全体の型は \verb|(int -> 'a) -> ('b -> int) -> 'b -> 'a|．
+\end{enumerate}
+
+\section{型推論に関する問題集 問3.11}
+
+\begin{enumerate}
+\item[1.] \verb|fn x => x > 1|
+
+  \verb|x > 1| が含まれるから，\verb|x| の型は \verb|int|．
+
+  全体の型は \verb|int -> bool|．
+
+\item[2.] \verb|fn x => fn y => fn z => (x y, x "Ada", y > z)|
+
+  \verb|"Ada"| を \verb|x| に適用しているから，\verb|x| の型は \verb|str -> 'a|．
+  \verb|y| を \verb|x| に適用しているから，\verb|y| の型は \verb|str|．
+  \verb|y > z| が含まれるから，\verb|z| の型は \verb|str|．
+
+  全体の型は \verb|(str -> 'a) -> str -> str -> 'a * 'a * bool|．
+
+\end{enumerate}
+
+\section{資料演習問題5.6.4}
+
+\begin{verbatim}
+fun comp F G =
+  let
+    fun C x = G(F(x))
+  in
+    C
+  end;
+
+fun add1 x = x + 1;
+\end{verbatim}
+このとき，\verb|comp| の型は \verb|('a -> 'b) -> ('b -> 'c) -> 'a -> 'c|，
+\verb|add1| の型は \verb|int -> int|．
+
+\begin{enumerate}[label=\alph*)]
+\item \verb|val compA1 = comp add1;|
+
+  \verb|comp| の型は \verb|('a -> 'b) -> ('b -> 'c) -> 'a -> 'c| であるから，
+  \verb|compA1| の型は \\ \verb|(int -> 'a) -> int -> 'a|．
+
+\item \verb|val compCompA1 = comp compA1;|
+
+  \verb|comp| の型は \verb|('a -> 'b) -> ('b -> 'c) -> 'a -> 'c| であるから，
+  \verb|compCompA1| の型は \\ \verb|((int -> 'a) -> 'b) -> (int -> 'a) -> 'b|．
+
+\item \verb|val f = compA1 add1;|
+
+  \verb|compA1| の型は \verb|(int -> 'a) -> int -> 'a| であるから，
+  \verb|f| の型は \verb|int -> int|．
+
+\item \verb|f(2);|
+
+\begin{verbatim}
+f(2) = compA1 add1 2
+     = comp add1 add1 2
+     = add1 (add1 2)
+     = add1 3
+     = 4.
+\end{verbatim}
+
+\item \verb|val g = compCompA1 compA1;|
+
+  \verb|compCompA1| の型は
+  \verb|((int -> 'a) -> 'b) -> (int -> 'a) -> 'b|，\\
+  \verb|compA1| の型は \verb|(int -> 'a) -> int -> 'a| であるから，
+  \verb|g| の型は \verb|(int -> 'a) -> int -> 'a|．
+
+\item \verb|val h = g add1;|
+
+  \verb|g| の型は \verb|(int -> 'a) -> int -> 'a| であるから，
+  \verb|h| の型は \verb|int -> int|．
+
+\item \verb|h(2);|
+
+\begin{verbatim}
+h(2) = g add1 2
+     = compCompA1 compA1 add1 2
+     = comp compA1 compA1 add1 2
+     = comp (comp add1) (comp add1) add1 2
+     = comp add1 (comp add1 add1) 2
+     = comp add1 add1 (add1 2)
+     = add1 (add1 (add1 2))
+     = add1 (add1 3)
+     = add1 4
+     = 5.
+\end{verbatim}
+\end{enumerate}
+
+\end{document}
