@@ -1,0 +1,8 @@
+0,1.
+
+maker:	discrete 6.
+price:	continuous.
+cpu_score:	continuous.
+memory:	continuous.
+weight:	continuous.
+display:	continuous.

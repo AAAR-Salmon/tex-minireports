@@ -1,0 +1,208 @@
+\documentclass[a4paper, lualatex, ja=standard]{bxjsarticle}
+
+\usepackage{luatexja}
+\usepackage{amsmath, amssymb}
+\usepackage{bm}
+\usepackage{physics}
+\usepackage{url}
+\usepackage{fancyvrb}
+\usepackage{multirow}
+
+\setpagelayout*{margin=20truemm}
+
+\title{2022年度 知識工学 レポート課題}
+\author{氏名:  \\ 学生番号: }
+
+\begin{document}
+\maketitle
+
+\section{課題1}
+
+\subsection{課題}
+
+決定木学習モデルを download し，windows または linux にインストールして
+付属のデモファイルについて解説をする．ない場合は，簡単な例を作成して動作説明をする
+（解説blogなどで利用されているデータを参考にして良い）
+
+さらに動かした結果を付与し説明を加えよ．いくつかのデモが付与されているが1つで良い．
+
+\subsection{手法}
+
+RuleQuest Research\cite{rulequest} の配布する，See5/C5.0のデモプログラムを実行する．
+
+付属のデモファイル \verb|anneal.{data,names,test}| を使用した．
+
+\subsection{デモファイル}
+
+\subsubsection{\texttt{anneal.names}}
+
+\verb|anneal.names| はスキーマファイルである．
+後述する \verb|anneal.data|，\verb|anneal.test| のクラス，各属性の型を定義する．
+
+\begin{Verbatim}[frame=single, label=anneal.names, numbers=left, fontsize=\small]
+1,2,3,5,U.
+
+family:         discrete 12.|GB,GK,GS,TN,ZA,ZF,ZH,ZM,ZS.
+product-type:   C, H, G.
+steel:          R,A,U,K,M,S,W,V.
+carbon:         continuous.
+hardness:       continuous.
+\end{Verbatim}
+
+上記が \verb|anneal.names| の冒頭の抜粋である．
+
+1行目はクラスを定義する．
+与えるデータが 1, 2, 3, 5, U の5つのクラスに分類される．
+
+3行目以降は各属性について定義する．
+3行目は \verb|family| という属性値について定義する．
+\verb|family| は\textbf{最大で}12種類の離散値を取ることができる．
+\verb+|+ 以降の記述はコメントであることに注意されたい．
+
+4,5行目はそれぞれ \verb|product-type|，\verb|steel| という属性値について定義する．
+これらはそれぞれ C, H, G と
+R, A, U, K, M, S, W, V のうちのいずれかの値を取ると明示的に指定している．
+
+6,7行目はそれぞれ \verb|carbon|，\verb|hardness| という属性値について定義する．
+これらは連続値（実数値）を取ることができる．
+
+\subsubsection{\texttt{anneal.data}, \texttt{anneal.test}}
+
+\verb|anneal.data| は学習データ，
+\verb|anneal.test| はテストデータであり，同じ形式を取る．
+
+\begin{Verbatim}[frame=single, label=anneal.data, numbers=left, fontsize=\small]
+TN,C,A,00,00,N/A,N/A,3,000,N,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,C,N/A,N/A,N/A,N/A,N/A,N/A,
+    N/A,N/A,N/A,N/A,N/A,SHEET,0.600,1220.0,0761,N/A,0000,N/A,5
+N/A,C,A,00,00,N/A,S,2,000,N/A,N/A,E,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,
+    N/A,N/A,N/A,N/A,N/A,SHEET,0.699,0610.0,0762,N,0000,N/A,3
+TN,C,N/A,00,00,N/A,A,1,000,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,Y,N/A,
+    N/A,N/A,N/A,N/A,N/A,SHEET,0.500,0609.9,0612,N/A,0000,N/A,5
+N/A,C,A,00,60,T,N/A,N/A,000,N/A,N/A,G,N/A,N/A,N/A,N/A,B,Y,N/A,N/A,N/A,Y,N/A,N/A,N/A,N/A,
+    N/A,N/A,N/A,N/A,N/A,SHEET,0.800,0356.1,0762,N/A,0000,N/A,3
+ZS,C,A,00,00,N/A,S,3,000,N,N/A,E,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,
+    N/A,N/A,N/A,N/A,N/A,COIL,1.000,0075.0,0000,N/A,0000,N/A,3
+\end{Verbatim}
+
+上記が \verb|anneal.data| の冒頭の抜粋である（適当に改行を加えた）．
+
+各行が学習データであり，コンマで区切られたデータが並んでいる．
+1列目から順に \verb|anneal.names| に定義した\textbf{属性}が順番に並んでいる．
+そして\textbf{末尾にクラス}が与えられる．
+
+\subsection{実行結果}
+
+実行結果の全体は\ref{appendix:anneal}に添付している．
+ここでは一部を説明するに留める．
+また，詳細については
+\url{https://www.rulequest.com/see5-unix.html#CLASSIFIERS} に記載されている．
+
+11行目には学習データの要約が記載されている．
+デモプログラムでは400ケースまでの制限があるため，
+400ケース38属性のデータが読み込まれたことを示している．
+
+13--38行目には学習結果が決定木として示されている．
+上から順に，\verb|hardness| の属性値が75より大きいかそれ以下かに分け，
+大きければクラスUに分類し，それ以下であれば更に分類する．
+\verb|strength| の属性値が375より大きいかそれ以下かに分け，
+大きく，かつ \verb|steel| の属性値が
+U, K, W, V, M, N/A のいずれかであればクラス2に，
+R, A のどちらかであればクラス3に，
+S であればクラス1に分類する．
+\verb|strength| の属性値が375以下で，かつ \verb|family| の属性値が
+TN であればクラス5に，ZS であればクラス3に，N/A であれば更に分類．と続く．
+
+また，分類クラスの後ろの括弧付きの数字は，
+(そのクラスに分類されたケース数/分類が誤っていたケース数)を示している．
+
+41--68行目には学習データに対する決定木の評価が示されている．
+Sizeは分類されたインスタンス数が\textbf{0でない}決定木の葉の個数を，
+Errorsは実際の（与えられた）クラスと誤って分類された
+インスタンスの個数及び割合を示している．
+
+50--57行目は混同行列と呼ばれる行列であり，
+行が実際のクラス，列が分類されたクラスを表している．
+すなわち対角成分が正しく分類されたインスタンス数を，
+非対角成分が誤って分類されたインスタンス数を表す．
+
+59--68行目は各属性が学習データの分類をするときに使われたインスタンス数の割合を示している．
+すべてのインスタンスの \verb|hardness| が使われ，
+分類が完了しなかった 95\% のインスタンスの \verb|strength| が分類に使われた，
+といった具合である．
+
+74--89行目はテストデータに決定木を適用したときの混同行列である．
+
+
+\section{課題2}
+
+\subsection{課題}
+
+売れているノートパソコンの人気機種の属性を調べる
+\begin{itemize}
+\item Webサイトの人気順
+\item 上位1--10は正例（売れた）
+\item 下位11以降は負例（売れないと仮定）
+\end{itemize}
+\begin{enumerate}
+\item moodleにC5.0⽤のファイルを置いたので実行してどういう木になったか分析
+\item 元々のファイル notePC\_rank.xlsx から属性を1つ選び，追加して分析せよ
+\end{enumerate}
+
+\subsection{課題2.1} \label{ssec:notepcs}
+
+実行結果は\ref{appendix:notepcs}に示す．
+
+12--20行目の決定木から分類結果を表にまとめると表\ref{tab:notepcs}のようになる．
+
+\begin{table}[bth]
+\caption{ノートPCの売れ方と価格・CPUスコアの関係} \label{tab:notepcs}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|} \hline
+        CPUスコア    & \multirow{2}{*}{$\leq 9019$} & $>9019$      & \multirow{2}{*}{$>11550$} \\ \cline{1-1}
+        価格         &                              & $\leq 11550$ &                           \\ \hline
+        N/A          & \multicolumn{3}{c|}{負例(2)}                                            \\ \hline
+        $\leq 49784$ & \multicolumn{3}{c|}{負例(2)}                                            \\ \hline
+        $>49784$     & \multirow{3}{*}{正例(4)}     & \multicolumn{2}{c|}{\multirow{2}{*}{正例(3)}} \\
+        $\leq 68020$ &                              & \multicolumn{2}{c|}{}                    \\ \cline{1-1}\cline{3-4}
+        $>68020$     &                              & 負例(4)      & 正例(3/1)                 \\ \hline
+    \end{tabular}
+\end{center}
+\end{table}
+
+ここからは大まかに価格が49784円より高いほうが売れ行きがよく，
+価格が高いがCPUスコアが9019から11550の間であるとあまり売れないと読み取れる．
+
+\subsection{課題2.2}
+
+ディスプレイサイズの属性を加え，\verb|notepc.data|，\verb|notepc.names|
+を \ref{appendix:notepc} のようにした．
+
+このときのC5.0の実行結果は8行目の属性数を除き\ref{ssec:notepcs}節と同じであった．
+
+
+\begin{thebibliography}{99}
+\bibitem{rulequest} RuleQuest Research Data Mining Tools，
+    \url{https://www.rulequest.com/index.html}，2022年5月19日アクセス．
+\end{thebibliography}
+
+
+\appendix
+
+\section{annealの決定木の学習結果} \label{appendix:anneal}
+
+\VerbatimInput[frame=single, label=anneal.output, numbers=left, fontsize=\small]%
+    {anneal.output}
+
+\section{notepc\_sの決定木の学習結果} \label{appendix:notepcs}
+
+\VerbatimInput[frame=single, label=notepc\_s.output, numbers=left, fontsize=\small]%
+    {notepc_s.output}
+
+\section{notepcの.dataと.names} \label{appendix:notepc}
+
+\VerbatimInput[frame=single, label=notepc.data, numbers=left, fontsize=\small]%
+    {notepc.data}
+\VerbatimInput[frame=single, label=notepc.names, numbers=left, fontsize=\small]%
+    {notepc.names}
+
+\end{document}
