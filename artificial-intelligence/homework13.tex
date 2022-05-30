@@ -1,0 +1,37 @@
+\documentclass[a4paper, lualatex, ja=standard]{bxjsarticle}
+
+\usepackage{luatexja}
+\usepackage{amsmath, amssymb}
+\usepackage{physics}
+\usepackage{bm}
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+
+\newtcolorbox{dfntcb}{colframe=blue!50!black, colback=white}
+
+\setpagelayout*{margin=20truemm}
+
+\title{人工知能 第13回課題}
+\author{氏名:  \\ 学生番号: }
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+\begin{document}
+\maketitle
+
+\section{誤差逆伝播法による学習}
+
+\begin{enumerate}
+\item 入力パターンベクトルと，対応する教師信号の組の集合を準備
+\item シナプス結合荷重の初期値をランダムに設定
+\item 入力パターンベクトルを1つ選び，各層のニューロンの出力を計算
+\item 出力誤差 $J$ を最小化するように各層 $l$ の荷重 ${w'}_{ij}^{(l)}$ を決定し，学習率 $\alpha$ に基づき更新
+  \begin{align*}
+    J &= \frac{1}{2}\norm{\bm{o}^{(l)}-\bm{t}}^2 \\
+    {w'}_{ij}^{(l)} &\leftarrow w_{ij}^{(l)}+\alpha\delta_{j}^{(l)}o_{i}^{(l-1)}
+        \quad(\delta: \text{誤差信号})
+  \end{align*}
+\item 3に戻り，$w$ が収束するまで再更新
+\end{enumerate}
+
+\end{document}
