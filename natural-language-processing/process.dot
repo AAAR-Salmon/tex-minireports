@@ -1,0 +1,58 @@
+digraph {
+  node [shape=rect]
+
+  train_csv[label="train.csv", style=rounded]
+  test_csv[label="test.csv", style=rounded]
+  wd2id[label="wd2id.pickle", style=rounded]
+  id2wd[label="id2wd.pickle", style=rounded]
+  train_fe[label="train.feature", style=rounded]
+  test_fe[label="test.feature", style=rounded]
+  model[label="svm_model.dat", style=rounded]
+  output[label="出力", shape=oval, peripheries=2]
+
+  subgraph cluster_mkvector {
+    label="mkvector.py"
+    mecab[label="MeCab"]
+    morphseqs[label="形態素列", shape=oval]
+    dict[label="辞書(形態素↔ID)"]
+
+    mecab -> morphseqs -> dict -> pickle
+    { rank=same; mecab, morphseqs, dict, pickle }
+  }
+
+  subgraph cluster_svmtrain {
+    label="svm_train.py"
+    bow[label="Bag of wordsベクトル", shape=oval]
+    svc_train[label="sklearn.svm.SVC"]
+
+    bow -> svc_train
+    { rank=same; bow, svc_train }
+  }
+
+  subgraph cluster_svmtest {
+    label="svm_test_analy.py"
+    svc_test[label="sklearn.svm.SVC"]
+    esti[label="推定", shape=oval]
+
+    svc_test -> esti
+
+    { rank=same; svc_test, esti }
+  }
+
+  train_csv -> mecab
+  test_csv -> mecab
+  pickle -> wd2id
+  pickle -> id2wd
+  dict -> train_fe
+  dict -> test_fe
+
+  train_fe -> bow
+  svc_train -> model
+
+  model -> svc_test
+  test_fe -> svc_test
+
+  esti -> output
+
+  rankdir="LR"
+}
