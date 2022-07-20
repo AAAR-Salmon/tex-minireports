@@ -49,7 +49,7 @@ digraph {
   train_fe -> bow
   svc_train -> model
 
-  model -> svc_test
+  model -> svc_test [constraint=false]
   test_fe -> svc_test
 
   esti -> output
